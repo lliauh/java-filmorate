@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private final Map<String, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @GetMapping
     public Collection<Film> findAll(HttpServletRequest request) {
@@ -29,8 +29,12 @@ public class FilmController {
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film);
 
         if (isFilmValid(film)) {
-            film.setId(films.size() + 1);
-            films.put(film.getName(), film);
+            if (film.getId() == null) {
+                film.setId(films.size() + 1);
+                films.put(film.getId(), film);
+            } else {
+                films.put(film.getId(), film);
+            }
 
             return film;
         } else {
@@ -44,19 +48,15 @@ public class FilmController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление фильма: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film);
 
-        if (isFilmValid(film)) {
-            if (films.containsKey(film.getName())) {
-                film.setId(films.get(film.getName()).getId());
-                films.put(film.getName(), film);
-            } else {
-                film.setId(films.size() + 1);
-                films.put(film.getName(), film);
-            }
-
+        if (films.containsKey(film.getId()) && isFilmValid(film)) {
+            films.put(film.getId(), film);
             return film;
-        } else {
+        } else if (!isFilmValid(film)) {
             log.debug("Ошибка валидации фильма: {}", film);
             throw new ValidationException("Фильм не прошел валидацию.");
+        } else {
+            log.debug("Фильма не существует: {}", film);
+            throw new RuntimeException("Фильма не существует.");
         }
     }
 
@@ -67,7 +67,7 @@ public class FilmController {
             throw new ValidationException("Описание фильма не может быть больше 200 символов.");
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Дата релиза не может быть ранее 28.12.1895.");
-        } else if (film.getDuration().getSeconds() < 1) {
+        } else if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной.");
         } else {
             return true;

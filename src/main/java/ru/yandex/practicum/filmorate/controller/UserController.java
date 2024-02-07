@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final Map<String, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
 
     @GetMapping
     public Collection<User> findAll(HttpServletRequest request) {
@@ -30,9 +30,15 @@ public class UserController {
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
         if (isUserValid(user)) {
-            user.setId(users.size() + 1);
-            users.put(user.getLogin(), user);
+            if (user.getName() == null) {
+                user.setName(user.getLogin());
+            }
 
+            if (user.getId() == null) {
+                user.setId(users.size() + 1);
+            }
+
+            users.put(user.getId(), user);
             return user;
         } else {
             log.debug("Ошибка валидации юзера: {}", user);
@@ -45,19 +51,19 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        if (isUserValid(user)) {
-            if (users.containsKey(user.getLogin())) {
-                user.setId(users.get(user.getLogin()).getId());
-                users.put(user.getLogin(), user);
-            } else {
-                user.setId(users.size() + 1);
-                users.put(user.getLogin(), user);
+        if (users.containsKey(user.getId()) && isUserValid(user)) {
+            if (user.getName() == null) {
+                user.setName(user.getLogin());
             }
 
+            users.put(user.getId(), user);
             return user;
-        } else {
+        } else if (!isUserValid(user)) {
             log.debug("Ошибка валидации юзера: {}", user);
             throw new ValidationException("Юзер не прошел валидацию.");
+        } else {
+            log.debug("Юзера не существует: {}", user);
+            throw new RuntimeException("Юзера не существует.");
         }
     }
 
