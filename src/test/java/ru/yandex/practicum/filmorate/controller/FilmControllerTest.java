@@ -74,7 +74,7 @@ public class FilmControllerTest {
         film.setName("Валидный фильм");
         film.setDescription("Валидное описание");
         film.setReleaseDate(LocalDate.of(1996, 2, 23));
-        film.setDuration(Duration.ofMinutes(93));
+        film.setDuration(93);
 
         return film;
     }
