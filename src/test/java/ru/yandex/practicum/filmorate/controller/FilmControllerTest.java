@@ -60,7 +60,7 @@ public class FilmControllerTest {
     @Test
     public void negativeDurationValidationTest() {
         film = createTestFilm();
-        film.setDuration(Duration.ofMinutes(-93));
+        film.setDuration(-93);
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
             filmController.isFilmValid(film);
