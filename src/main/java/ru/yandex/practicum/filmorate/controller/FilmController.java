@@ -24,43 +24,42 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody Film film, HttpServletRequest request) throws ValidationException {
+    public Film create(@RequestBody Film film, HttpServletRequest request) throws ValidationException,
+            RuntimeException {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Создание фильма: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film);
 
-        if (isFilmValid(film)) {
-            if (film.getId() == null) {
-                film.setId(films.size() + 1);
-                films.put(film.getId(), film);
-            } else {
-                films.put(film.getId(), film);
-            }
+        filmValidation(film);
 
-            return film;
-        } else {
-            log.debug("Ошибка валидации фильма: {}", film);
-            throw new ValidationException("Фильм не прошел валидацию.");
+        if (film.getId() == null) {
+            film.setId(films.size() + 1);
+        } else if (films.containsKey(film.getId())) {
+            log.debug("Фильм уже существует: {}", film);
+            throw new RuntimeException("Фильм уже существует.");
         }
+
+        films.put(film.getId(), film);
+        return film;
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film, HttpServletRequest request) throws ValidationException {
+    public Film update(@RequestBody Film film, HttpServletRequest request) throws ValidationException,
+            RuntimeException {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление фильма: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film);
 
-        if (films.containsKey(film.getId()) && isFilmValid(film)) {
+        filmValidation(film);
+
+        if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return film;
-        } else if (!isFilmValid(film)) {
-            log.debug("Ошибка валидации фильма: {}", film);
-            throw new ValidationException("Фильм не прошел валидацию.");
         } else {
             log.debug("Фильма не существует: {}", film);
             throw new RuntimeException("Фильма не существует.");
         }
     }
 
-    public boolean isFilmValid(Film film) throws ValidationException {
+    public void filmValidation(Film film) throws ValidationException {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название фильма не может быть пустым.");
         } else if (film.getDescription().length() > 200) {
@@ -70,7 +69,7 @@ public class FilmController {
         } else if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной.");
         } else {
-            return true;
+            return;
         }
     }
 }

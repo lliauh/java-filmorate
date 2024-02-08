@@ -29,21 +29,21 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Создание юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        if (isUserValid(user)) {
-            if (user.getName() == null) {
+        userValidation(user);
+
+        if (user.getName() == null) {
                 user.setName(user.getLogin());
-            }
-
-            if (user.getId() == null) {
-                user.setId(users.size() + 1);
-            }
-
-            users.put(user.getId(), user);
-            return user;
-        } else {
-            log.debug("Ошибка валидации юзера: {}", user);
-            throw new ValidationException("Юзер не прошел валидацию.");
         }
+
+        if (user.getId() == null) {
+            user.setId(users.size() + 1);
+        } else if (users.containsKey(user.getId())) {
+            log.debug("Юзер уже существует: {}", user);
+            throw new RuntimeException("Юзер уже существует.");
+        }
+
+        users.put(user.getId(), user);
+        return user;
     }
 
     @PutMapping
@@ -51,23 +51,18 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        if (users.containsKey(user.getId()) && isUserValid(user)) {
-            if (user.getName() == null) {
-                user.setName(user.getLogin());
-            }
+        userValidation(user);
 
+        if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             return user;
-        } else if (!isUserValid(user)) {
-            log.debug("Ошибка валидации юзера: {}", user);
-            throw new ValidationException("Юзер не прошел валидацию.");
         } else {
             log.debug("Юзера не существует: {}", user);
             throw new RuntimeException("Юзера не существует.");
         }
     }
 
-    public boolean isUserValid(User user) throws ValidationException {
+    public void userValidation(User user) throws ValidationException {
         if (user.getEmail().isEmpty()) {
             throw new ValidationException("Email не может быть пустым.");
         } else if (!user.getEmail().contains("@")) {
@@ -79,7 +74,7 @@ public class UserController {
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("День рождения не может быть в будущем.");
         } else {
-            return true;
+            return;
         }
     }
 }

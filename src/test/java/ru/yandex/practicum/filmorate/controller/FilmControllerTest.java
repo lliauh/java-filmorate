@@ -14,8 +14,15 @@ public class FilmControllerTest {
     @Test
     public void validFilmTest() {
         film = createTestFilm();
+        boolean exceptionThrown = false;
 
-        Assertions.assertTrue(filmController.isFilmValid(film));
+        try {
+            filmController.filmValidation(film);
+        } catch (ValidationException e) {
+            exceptionThrown = true;
+        }
+
+        Assertions.assertFalse(exceptionThrown);
     }
 
     @Test
@@ -24,7 +31,7 @@ public class FilmControllerTest {
         film.setName("");
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.isFilmValid(film);
+            filmController.filmValidation(film);
         });
         Assertions.assertEquals("Название фильма не может быть пустым.", thrown.getMessage());
     }
@@ -40,7 +47,7 @@ public class FilmControllerTest {
                 "Рэтчед решительно настроена пресечь это.");
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.isFilmValid(film);
+            filmController.filmValidation(film);
         });
         Assertions.assertEquals("Описание фильма не может быть больше 200 символов.", thrown.getMessage());
     }
@@ -51,7 +58,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.isFilmValid(film);
+            filmController.filmValidation(film);
         });
         Assertions.assertEquals("Дата релиза не может быть ранее 28.12.1895.", thrown.getMessage());
     }
@@ -62,7 +69,7 @@ public class FilmControllerTest {
         film.setDuration(-93);
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.isFilmValid(film);
+            filmController.filmValidation(film);
         });
         Assertions.assertEquals("Продолжительность фильма должна быть положительной.", thrown.getMessage());
     }

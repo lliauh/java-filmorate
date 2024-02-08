@@ -14,8 +14,15 @@ public class UserControllerTest {
     @Test
     public void validUserTest() {
         user = createTestUser();
+        boolean exceptionThrown = false;
 
-        Assertions.assertTrue(userController.isUserValid(user));
+        try {
+            userController.userValidation(user);
+        } catch (ValidationException e) {
+            exceptionThrown = true;
+        }
+
+        Assertions.assertFalse(exceptionThrown);
     }
 
     @Test
@@ -24,13 +31,13 @@ public class UserControllerTest {
 
         user.setEmail("user_test.ru");
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.isUserValid(user);
+            userController.userValidation(user);
         });
         Assertions.assertEquals("Email должен содержать @.", thrown.getMessage());
 
         user.setEmail("");
         thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.isUserValid(user);
+            userController.userValidation(user);
         });
         Assertions.assertEquals("Email не может быть пустым.", thrown.getMessage());
     }
@@ -41,13 +48,13 @@ public class UserControllerTest {
 
         user.setLogin("");
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.isUserValid(user);
+            userController.userValidation(user);
         });
         Assertions.assertEquals("Login не может быть пустым.", thrown.getMessage());
 
         user.setLogin("lo gin");
         thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.isUserValid(user);
+            userController.userValidation(user);
         });
         Assertions.assertEquals("Login не может содержать пробелы.", thrown.getMessage());
     }
@@ -58,7 +65,7 @@ public class UserControllerTest {
 
         user.setBirthday(LocalDate.of(3000, 12, 19));
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.isUserValid(user);
+            userController.userValidation(user);
         });
         Assertions.assertEquals("День рождения не может быть в будущем.", thrown.getMessage());
     }
