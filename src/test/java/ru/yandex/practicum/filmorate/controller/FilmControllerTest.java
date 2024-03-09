@@ -4,11 +4,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmsService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
 public class FilmControllerTest {
-    private FilmController filmController = new FilmController();
+    private final FilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+    private final UserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    private final FilmsService filmsService = new FilmsService(inMemoryFilmStorage, inMemoryUserStorage);
+    private final FilmController filmController = new FilmController(inMemoryFilmStorage, filmsService);
     private Film film;
 
     @Test
@@ -17,7 +25,7 @@ public class FilmControllerTest {
         boolean exceptionThrown = false;
 
         try {
-            filmController.filmValidation(film);
+            inMemoryFilmStorage.validate(film);
         } catch (ValidationException e) {
             exceptionThrown = true;
         }
@@ -31,7 +39,7 @@ public class FilmControllerTest {
         film.setName("");
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.filmValidation(film);
+            inMemoryFilmStorage.validate(film);
         });
         Assertions.assertEquals("Название фильма не может быть пустым.", thrown.getMessage());
     }
@@ -47,7 +55,7 @@ public class FilmControllerTest {
                 "Рэтчед решительно настроена пресечь это.");
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.filmValidation(film);
+            inMemoryFilmStorage.validate(film);
         });
         Assertions.assertEquals("Описание фильма не может быть больше 200 символов.", thrown.getMessage());
     }
@@ -58,7 +66,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.filmValidation(film);
+            inMemoryFilmStorage.validate(film);
         });
         Assertions.assertEquals("Дата релиза не может быть ранее 28.12.1895.", thrown.getMessage());
     }
@@ -69,7 +77,7 @@ public class FilmControllerTest {
         film.setDuration(-93);
 
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            filmController.filmValidation(film);
+            inMemoryFilmStorage.validate(film);
         });
         Assertions.assertEquals("Продолжительность фильма должна быть положительной.", thrown.getMessage());
     }

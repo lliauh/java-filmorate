@@ -4,24 +4,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
+    private final UserStorage inMemoryUserStorage;
+    private final UserService userService;
+
+    public UserController(UserStorage inMemoryUserStorage, UserService userService) {
+        this.inMemoryUserStorage = inMemoryUserStorage;
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> findAll(HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
-        return users.values();
+        return inMemoryUserStorage.findAll();
     }
 
     @PostMapping
@@ -29,21 +34,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Создание юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        userValidation(user);
-
-        if (user.getName() == null) {
-                user.setName(user.getLogin());
-        }
-
-        if (user.getId() == null) {
-            user.setId(users.size() + 1);
-        } else if (users.containsKey(user.getId())) {
-            log.debug("Юзер уже существует: {}", user);
-            throw new RuntimeException("Юзер уже существует.");
-        }
-
-        users.put(user.getId(), user);
-        return user;
+        return inMemoryUserStorage.create(user);
     }
 
     @PutMapping
@@ -51,30 +42,53 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        userValidation(user);
-
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            return user;
-        } else {
-            log.debug("Юзера не существует: {}", user);
-            throw new RuntimeException("Юзера не существует.");
-        }
+        return inMemoryUserStorage.update(user);
     }
 
-    public void userValidation(User user) throws ValidationException {
-        if (user.getEmail().isEmpty()) {
-            throw new ValidationException("Email не может быть пустым.");
-        } else if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Email должен содержать @.");
-        } else if (user.getLogin().isEmpty()) {
-            throw new ValidationException("Login не может быть пустым.");
-        } else if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Login не может содержать пробелы.");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("День рождения не может быть в будущем.");
-        } else {
-            return;
-        }
+    @GetMapping("/{userId}")
+    public User findUser(@PathVariable("userId") Integer userId, HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение юзера ID: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString(), userId);
+
+        return inMemoryUserStorage.findUserById(userId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriends(@PathVariable("id") Integer firstUserId, @PathVariable("friendId") Integer secondUserId,
+                           HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Добавление в друзья" +
+                        " юзеров ID: '{}, {}'", request.getMethod(), request.getRequestURI(),
+                request.getQueryString(), firstUserId, secondUserId);
+
+        userService.addFriends(firstUserId, secondUserId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriends(@PathVariable("id") Integer firstUserId, @PathVariable("friendId") Integer secondUserId,
+                           HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Удаление из друзей" +
+                        " юзеров ID: '{}, {}'", request.getMethod(), request.getRequestURI(),
+                request.getQueryString(), firstUserId, secondUserId);
+
+        userService.deleteFriends(firstUserId, secondUserId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Collection<User> getFriends(@PathVariable("id") Integer userId, HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение друзей юзера ID: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString(), userId);
+
+        return userService.getFriendsById(userId);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getMutualFriends(@PathVariable("id") Integer firstUserId,
+                                             @PathVariable("otherId") Integer secondUserId,
+                                             HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение списка общих друзей" +
+                        " юзеров ID: '{}, {}'", request.getMethod(), request.getRequestURI(), request.getQueryString(),
+                firstUserId, secondUserId);
+
+        return userService.getMutualFriends(firstUserId, secondUserId);
     }
 }
