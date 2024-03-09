@@ -6,10 +6,14 @@ import java.util.Map;
 
 public interface UserStorage {
     User create(User user);
-    User update(User user);
-    Collection<User> findAll();
-    Map<Integer, User> getUsers();
-    User findUserById(Integer userId);
-    void validate(User user);
 
+    User update(User user);
+
+    Collection<User> findAll();
+
+    Map<Integer, User> getUsers();
+
+    User findUserById(Integer userId);
+
+    void validate(User user);
 }
