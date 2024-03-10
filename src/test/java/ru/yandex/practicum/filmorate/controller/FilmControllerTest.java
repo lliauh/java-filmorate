@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class FilmControllerTest {
     private final FilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
     private final UserStorage inMemoryUserStorage = new InMemoryUserStorage();
-    private final FilmsService filmsService = new FilmsService(inMemoryFilmStorage, inMemoryUserStorage);
+    private final FilmsService filmsService = new FilmsService(inMemoryFilmStorage);
     private final FilmController filmController = new FilmController(filmsService);
     private Film film;
 

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
@@ -21,7 +20,7 @@ public class UserController {
     public Collection<User> findAll(HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
-        return userService.getUserStorage().findAll();
+        return userService.getAllUsers();
     }
 
     @PostMapping
@@ -29,7 +28,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Создание юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        return userService.getUserStorage().create(user);
+        return userService.create(user);
     }
 
     @PutMapping
@@ -37,7 +36,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        return userService.getUserStorage().update(user);
+        return userService.update(user);
     }
 
     @GetMapping("/{userId}")
@@ -45,7 +44,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение юзера ID: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), userId);
 
-        return userService.getUserStorage().findUserById(userId);
+        return userService.getUserById(userId);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

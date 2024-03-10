@@ -20,7 +20,7 @@ public class FilmController {
     public Collection<Film> findAll(HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
-        return filmsService.getFilmStorage().findAll();
+        return filmsService.getAllFilms();
     }
 
     @PostMapping
@@ -28,7 +28,7 @@ public class FilmController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Создание фильма: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film);
 
-        return filmsService.getFilmStorage().create(film);
+        return filmsService.create(film);
     }
 
     @PutMapping
@@ -36,7 +36,7 @@ public class FilmController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление фильма: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film);
 
-        return filmsService.getFilmStorage().update(film);
+        return filmsService.update(film);
     }
 
     @GetMapping("/{filmId}")
@@ -44,7 +44,7 @@ public class FilmController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение фильма ID: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), filmId);
 
-        return filmsService.getFilmStorage().findFilmById(filmId);
+        return filmsService.getFilmById(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")
