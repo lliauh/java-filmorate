@@ -14,6 +14,4 @@ public interface FilmStorage {
     Map<Integer, Film> getFilms();
 
     Film findFilmById(Integer filmId);
-
-    void validate(Film film);
 }

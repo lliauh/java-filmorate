@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -13,20 +14,15 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private final UserStorage inMemoryUserStorage;
     private final UserService userService;
-
-    public UserController(UserStorage inMemoryUserStorage, UserService userService) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
-        this.userService = userService;
-    }
 
     @GetMapping
     public Collection<User> findAll(HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
-        return inMemoryUserStorage.findAll();
+        return userService.getUserStorage().findAll();
     }
 
     @PostMapping
@@ -34,7 +30,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Создание юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        return inMemoryUserStorage.create(user);
+        return userService.getUserStorage().create(user);
     }
 
     @PutMapping
@@ -42,7 +38,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Обновление юзера: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user);
 
-        return inMemoryUserStorage.update(user);
+        return userService.getUserStorage().update(user);
     }
 
     @GetMapping("/{userId}")
@@ -50,7 +46,7 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение юзера ID: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), userId);
 
-        return inMemoryUserStorage.findUserById(userId);
+        return userService.getUserStorage().findUserById(userId);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

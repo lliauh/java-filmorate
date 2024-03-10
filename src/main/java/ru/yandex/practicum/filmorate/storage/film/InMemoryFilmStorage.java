@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -30,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             film.setId(films.size() + 1);
         } else if (films.containsKey(film.getId())) {
             log.debug("Фильм уже существует: {}", film);
-            throw new ObjectAlreadyExistsException("Фильм уже существует.");
+            throw new AlreadyExistsException("Фильм уже существует.");
         }
 
         films.put(film.getId(), film);
@@ -46,7 +46,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             return film;
         } else {
             log.debug("Фильма не существует: {}", film);
-            throw new ObjectNotFoundException("Фильма не существует.");
+            throw new NotFoundException("Фильма не существует.");
         }
     }
 
@@ -55,8 +55,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values();
     }
 
-    @Override
-    public void validate(Film film) {
+    private void validate(Film film) {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название фильма не может быть пустым.");
         }
@@ -76,6 +75,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values().stream()
                 .filter(f -> f.getId().equals(filmId))
                 .findFirst()
-                .orElseThrow(() -> new ObjectNotFoundException(String.format("Фильм ID: %d не найден", filmId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм ID: %d не найден", filmId)));
     }
 }

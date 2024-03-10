@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -34,7 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
             user.setId(users.size() + 1);
         } else if (users.containsKey(user.getId())) {
             log.debug("Юзер уже существует: {}", user);
-            throw new ObjectAlreadyExistsException("Юзер уже существует.");
+            throw new AlreadyExistsException("Юзер уже существует.");
         }
 
         users.put(user.getId(), user);
@@ -50,7 +50,7 @@ public class InMemoryUserStorage implements UserStorage {
             return user;
         } else {
             log.debug("Юзера не существует: {}", user);
-            throw new ObjectNotFoundException("Юзера не существует.");
+            throw new NotFoundException("Юзера не существует.");
         }
     }
 
@@ -59,8 +59,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values();
     }
 
-    @Override
-    public void validate(User user) {
+    private void validate(User user) {
         if (user.getEmail().isEmpty()) {
             throw new ValidationException("Email не может быть пустым.");
         }
@@ -83,6 +82,6 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values().stream()
                 .filter(u -> u.getId().equals(userId))
                 .findFirst()
-                .orElseThrow(() -> new ObjectNotFoundException(String.format("Юзер ID: %d не найден", userId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Юзер ID: %d не найден", userId)));
     }
 }
