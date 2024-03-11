@@ -4,11 +4,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
 public class UserControllerTest {
-    private UserController userController = new UserController();
+    private final UserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    private final UserService userService = new UserService(inMemoryUserStorage);
+    private final UserController userController = new UserController(userService);
     private User user;
 
     @Test
@@ -17,7 +22,7 @@ public class UserControllerTest {
         boolean exceptionThrown = false;
 
         try {
-            userController.userValidation(user);
+            inMemoryUserStorage.create(user);
         } catch (ValidationException e) {
             exceptionThrown = true;
         }
@@ -31,13 +36,13 @@ public class UserControllerTest {
 
         user.setEmail("user_test.ru");
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.userValidation(user);
+            inMemoryUserStorage.create(user);
         });
         Assertions.assertEquals("Email должен содержать @.", thrown.getMessage());
 
         user.setEmail("");
         thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.userValidation(user);
+            inMemoryUserStorage.create(user);
         });
         Assertions.assertEquals("Email не может быть пустым.", thrown.getMessage());
     }
@@ -48,13 +53,13 @@ public class UserControllerTest {
 
         user.setLogin("");
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.userValidation(user);
+            inMemoryUserStorage.create(user);
         });
         Assertions.assertEquals("Login не может быть пустым.", thrown.getMessage());
 
         user.setLogin("lo gin");
         thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.userValidation(user);
+            inMemoryUserStorage.create(user);
         });
         Assertions.assertEquals("Login не может содержать пробелы.", thrown.getMessage());
     }
@@ -65,7 +70,7 @@ public class UserControllerTest {
 
         user.setBirthday(LocalDate.of(3000, 12, 19));
         ValidationException thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.userValidation(user);
+            inMemoryUserStorage.create(user);
         });
         Assertions.assertEquals("День рождения не может быть в будущем.", thrown.getMessage());
     }
