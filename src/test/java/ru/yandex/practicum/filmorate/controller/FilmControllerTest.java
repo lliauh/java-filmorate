@@ -3,20 +3,14 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmsService;
+import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
 public class FilmControllerTest {
     private final FilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-    private final UserStorage inMemoryUserStorage = new InMemoryUserStorage();
-    private final FilmsService filmsService = new FilmsService(inMemoryFilmStorage);
-    private final FilmController filmController = new FilmController(filmsService);
     private Film film;
 
     @Test

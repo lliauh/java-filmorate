@@ -1,25 +1,23 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.film.Film;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
+@Qualifier("inMemoryFilmStorage")
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
-
-    @Override
-    public Map<Integer, Film> getFilms() {
-        return films;
-    }
 
     @Override
     public Film create(Film film) {
@@ -75,5 +73,13 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .filter(f -> f.getId().equals(filmId))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм ID: %d не найден", filmId)));
+    }
+
+    @Override
+    public Collection<Film> getTopRatedFilms(Integer size) {
+        return findAll().stream().sorted((f0, f1) -> {
+            int comp = -1 * f0.getRate().compareTo(f1.getRate());
+            return comp;
+            }).limit(size).collect(Collectors.toList());
     }
 }

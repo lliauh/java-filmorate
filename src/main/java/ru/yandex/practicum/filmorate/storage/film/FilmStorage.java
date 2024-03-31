@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.film.Film;
 import java.util.Collection;
-import java.util.Map;
 
 public interface FilmStorage {
     Film create(Film film);
@@ -11,7 +10,7 @@ public interface FilmStorage {
 
     Collection<Film> findAll();
 
-    Map<Integer, Film> getFilms();
+    Collection<Film> getTopRatedFilms(Integer size);
 
     Film findFilmById(Integer filmId);
 }
