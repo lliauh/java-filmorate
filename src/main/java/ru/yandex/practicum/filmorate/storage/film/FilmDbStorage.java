@@ -36,10 +36,7 @@ public class FilmDbStorage implements FilmStorage {
             findFilmById(film.getId());
         }
 
-        String sql = """
-                INSERT into films(name, description, release_date, duration)
-                VALUES (?, ?, ?, ?);
-                """;
+        String sql = "INSERT into films(name, description, release_date, duration) VALUES (?, ?, ?, ?);";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -55,22 +52,14 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
 
         if (film.getRate() != null) {
-            String rateUpdateSql = """
-                    UPDATE films
-                    SET rate = ?
-                    WHERE film_id = ?;
-                    """;
+            String rateUpdateSql = "UPDATE films SET rate = ? WHERE film_id = ?;";
             jdbcTemplate.update(rateUpdateSql, film.getRate(), keyHolder.getKey().intValue());
         }
 
         if (film.getMpa() != null) {
             mpaStorage.validateMpa(film.getMpa().getId());
 
-            String ratingUpdateSql = """
-                    UPDATE films
-                    SET rating_id = ?
-                    WHERE film_id = ?;
-                    """;
+            String ratingUpdateSql = "UPDATE films SET rating_id = ? WHERE film_id = ?;";
 
             jdbcTemplate.update(ratingUpdateSql, film.getMpa().getId(), keyHolder.getKey().intValue());
         }
@@ -79,10 +68,7 @@ public class FilmDbStorage implements FilmStorage {
             for (Genre genre : film.getGenres()) {
                 genreStorage.validateGenre(genre.getId());
 
-                String genreSql = """
-                    INSERT into film_genres(film_id, genre_id)
-                    VALUES (?, ?);
-                    """;
+                String genreSql = "INSERT into film_genres(film_id, genre_id) VALUES (?, ?);";
                 jdbcTemplate.update(genreSql, keyHolder.getKey().intValue(), genre.getId());
             }
         }
@@ -95,11 +81,7 @@ public class FilmDbStorage implements FilmStorage {
         film.validate();
         findFilmById(film.getId());
 
-        String sql = """
-                UPDATE films
-                SET name = ?, description = ?, release_date = ?, duration = ?
-                WHERE film_id = ?;
-                """;
+        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ? WHERE film_id = ?;";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -116,40 +98,26 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
 
         if (film.getRate() != null) {
-            String rateUpdateSql = """
-                    UPDATE films
-                    SET rate = ?
-                    WHERE film_id = ?;
-                    """;
+            String rateUpdateSql = "UPDATE films SET rate = ? WHERE film_id = ?;";
             jdbcTemplate.update(rateUpdateSql, film.getRate(), keyHolder.getKey().intValue());
         }
 
         if (film.getMpa() != null) {
             mpaStorage.validateMpa(film.getMpa().getId());
 
-            String ratingUpdateSql = """
-                    UPDATE films
-                    SET rating_id = ?
-                    WHERE film_id = ?;
-                    """;
+            String ratingUpdateSql = "UPDATE films SET rating_id = ? WHERE film_id = ?;";
 
             jdbcTemplate.update(ratingUpdateSql, film.getMpa().getId(), keyHolder.getKey().intValue());
         }
 
         if (!film.getGenres().isEmpty()) {
-            String clearGenresSql = """
-                DELETE FROM film_genres
-                WHERE film_id = ?;
-                """;
+            String clearGenresSql = "DELETE FROM film_genres WHERE film_id = ?;";
             jdbcTemplate.update(clearGenresSql, film.getId());
 
             for (Genre genre : film.getGenres()) {
                 genreStorage.validateGenre(genre.getId());
 
-                String genreSql = """
-                    INSERT into film_genres(film_id, genre_id)
-                    VALUES (?, ?);
-                    """;
+                String genreSql = "INSERT into film_genres(film_id, genre_id) VALUES (?, ?);";
                 jdbcTemplate.update(genreSql, film.getId(), genre.getId());
             }
         }
@@ -159,10 +127,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        String sql = """
-                SELECT *
-                FROM films;
-                """;
+        String sql = "SELECT * FROM films;";
 
         List<Film> allFilms = jdbcTemplate.query(sql, filmRowMapper);
 
@@ -176,11 +141,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilmById(Integer filmId) {
 
-        String sql = """
-                SELECT *
-                FROM films
-                WHERE film_id = ?;
-                """;
+        String sql = "SELECT * FROM films WHERE film_id = ?;";
 
         Optional<Film> film = jdbcTemplate.query(sql, filmRowMapper, filmId)
                 .stream()
@@ -197,11 +158,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void addGenresFromDb(Film film) {
-        String filmGenresSql = """
-                    SELECT *
-                    FROM film_genres
-                    WHERE film_id = ?;
-                    """;
+        String filmGenresSql = "SELECT * FROM film_genres WHERE film_id = ?;";
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(filmGenresSql, film.getId());
 
         while (genreRows.next()) {
@@ -211,12 +168,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getTopRatedFilms(Integer size) {
-        String sql = """
-                SELECT *
-                FROM films
-                ORDER BY rate DESC
-                LIMIT ?;
-                """;
+        String sql = "SELECT * FROM films ORDER BY rate DESC LIMIT ?;";
 
         List<Film> topRatedFilms = jdbcTemplate.query(sql, filmRowMapper, size);
 

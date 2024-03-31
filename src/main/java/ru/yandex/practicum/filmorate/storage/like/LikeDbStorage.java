@@ -29,10 +29,7 @@ public class LikeDbStorage implements LikeStorage {
             throw new AlreadyExistsException(String.format("Лайк фильма ID: %d от юзера ID: %d уже существует.", filmId,
                     userId));
         } else {
-            String likeSql = """
-                    INSERT into likes(film_id, user_id)
-                    VALUES (?, ?);
-                    """;
+            String likeSql = "INSERT into likes(film_id, user_id) VALUES (?, ?);";
             jdbcTemplate.update(likeSql, filmId, userId);
 
             Film film = filmStorage.findFilmById(filmId);
@@ -51,10 +48,7 @@ public class LikeDbStorage implements LikeStorage {
         Optional<Like> like = checkIfExists(filmId, userId);
 
         if (like.isPresent()) {
-            String deleteLikeSql = """
-                    DELETE FROM likes
-                    WHERE film_id = ? AND user_id = ?;
-                    """;
+            String deleteLikeSql = "DELETE FROM likes WHERE film_id = ? AND user_id = ?;";
             jdbcTemplate.update(deleteLikeSql, filmId, userId);
 
             Film film = filmStorage.findFilmById(filmId);
@@ -67,11 +61,7 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     private Optional<Like> checkIfExists(Integer filmId, Integer userId) {
-        String sql = """
-                SELECT *
-                FROM likes
-                WHERE film_id = ? AND user_id = ?;
-                """;
+        String sql = "SELECT * FROM likes WHERE film_id = ? AND user_id = ?;";
 
         Optional<Like> like = jdbcTemplate.query(sql, likeRowMapper, filmId, userId)
                 .stream()

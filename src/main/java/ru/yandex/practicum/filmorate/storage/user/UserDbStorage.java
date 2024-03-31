@@ -30,10 +30,7 @@ public class UserDbStorage implements UserStorage {
     public User create(User user) {
         user.validate();
 
-        String sql = """
-               INSERT into users(email, login, name, birthday)
-               VALUES (?, ?, ?, ?);
-               """;
+        String sql = "INSERT into users(email, login, name, birthday) VALUES (?, ?, ?, ?);";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -56,11 +53,7 @@ public class UserDbStorage implements UserStorage {
         user.validate();
         findUserById(user.getId());
 
-        String sql = """
-                UPDATE users
-                SET email = ?, login = ?, name = ?, birthday = ?
-                WHERE id = ?;
-                """;
+        String sql = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?;";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -81,21 +74,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> findAll() {
-        String sql = """
-                SELECT *
-                FROM users;
-                """;
+        String sql = "SELECT * FROM users;";
 
         return jdbcTemplate.query(sql, userRowMapper);
     }
 
     @Override
     public User findUserById(Integer userId) {
-        String sql = """
-                SELECT *
-                FROM users
-                WHERE id = ?;
-                """;
+        String sql = "SELECT * FROM users WHERE id = ?;";
 
         Optional<User> user = jdbcTemplate.query(sql, userRowMapper, userId)
                 .stream()

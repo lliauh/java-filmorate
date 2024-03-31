@@ -26,10 +26,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
             throw new AlreadyExistsException(String.format("Дружба между ID: %d и ID: %d уже существует.",
                     firstUserId, secondUserId));
         } else {
-            String sql = """
-                INSERT into friends(first_user_id, second_user_id)
-                VALUES (?, ?);
-                """;
+            String sql = "INSERT into friends(first_user_id, second_user_id) VALUES (?, ?);";
             jdbcTemplate.update(sql, firstUserId, secondUserId);
         }
     }
@@ -37,21 +34,14 @@ public class FriendshipDbStorage implements FriendshipStorage {
     @Override
     public void deleteFriends(Integer firstUserId, Integer secondUserId) {
         if (friendshipAlreadyExists(firstUserId, secondUserId)) {
-            String sql = """
-                DELETE FROM friends
-                WHERE (first_user_id = ? AND second_user_id = ?);
-                """;
+            String sql = "DELETE FROM friends WHERE (first_user_id = ? AND second_user_id = ?);";
             jdbcTemplate.update(sql, firstUserId, secondUserId);
         }
     }
 
     @Override
     public List<Friendship> findFriendsByUserId(Integer userId) {
-        String sql = """
-                SELECT *
-                FROM friends
-                WHERE first_user_id = ?;
-                """;
+        String sql = "SELECT * FROM friends WHERE first_user_id = ?;";
 
         return jdbcTemplate.query(sql, friendshipRowMapper, userId)
                 .stream()

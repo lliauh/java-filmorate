@@ -21,11 +21,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Mpa findMpaById(Integer id) {
-        String sql = """
-                SELECT *
-                FROM ratings
-                WHERE rating_id = ?;
-                """;
+        String sql = "SELECT * FROM ratings WHERE rating_id = ?;";
 
         Optional<Mpa> rating = jdbcTemplate.query(sql, mpaRowMapper, id)
                 .stream()
@@ -40,21 +36,14 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Collection<Mpa> findAll() {
-        String sql = """
-                SELECT *
-                FROM ratings;
-                """;
+        String sql = "SELECT * FROM ratings;";
 
         return jdbcTemplate.query(sql, mpaRowMapper);
     }
 
     @Override
     public void validateMpa(Integer id) {
-        String sql = """
-                SELECT *
-                FROM ratings
-                WHERE rating_id = ?;
-                """;
+        String sql = "SELECT * FROM ratings WHERE rating_id = ?;";
 
         Optional<Mpa> rating = jdbcTemplate.query(sql, mpaRowMapper, id)
                 .stream()

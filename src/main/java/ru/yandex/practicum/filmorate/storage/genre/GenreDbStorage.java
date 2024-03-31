@@ -21,11 +21,7 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre findGenreById(Integer id) {
-        String sql = """
-                SELECT *
-                FROM genres
-                WHERE genre_id = ?;
-                """;
+        String sql = "SELECT * FROM genres WHERE genre_id = ?;";
 
         Optional<Genre> genre = jdbcTemplate.query(sql, genreRowMapper, id)
                 .stream()
@@ -40,21 +36,14 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Collection<Genre> findAll() {
-        String sql = """
-                SELECT *
-                FROM genres;
-                """;
+        String sql = "SELECT * FROM genres;";
 
         return jdbcTemplate.query(sql, genreRowMapper);
     }
 
     @Override
     public void validateGenre(Integer id) {
-        String sql = """
-                SELECT *
-                FROM genres
-                WHERE genre_id = ?;
-                """;
+        String sql = "SELECT * FROM genres WHERE genre_id = ?;";
 
         Optional<Genre> genre = jdbcTemplate.query(sql, genreRowMapper, id)
                 .stream()
