@@ -12,6 +12,7 @@ import java.sql.SQLException;
 @RequiredArgsConstructor
 public class FilmRowMapper implements RowMapper<Film> {
     private final MpaStorage mpaStorage;
+
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Film film = new Film(
                 rs.getInt("film_id"),
