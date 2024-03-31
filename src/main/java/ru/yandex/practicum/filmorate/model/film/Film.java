@@ -6,9 +6,7 @@ import ru.yandex.practicum.filmorate.model.genre.Genre;
 import ru.yandex.practicum.filmorate.model.mpa.Mpa;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Data
 public class Film {
