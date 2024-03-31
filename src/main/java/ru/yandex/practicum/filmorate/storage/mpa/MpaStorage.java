@@ -6,6 +6,8 @@ import java.util.Collection;
 
 public interface MpaStorage {
     Mpa findMpaById(Integer id);
+
     Collection<Mpa> findAll();
+
     void validateMpa(Integer id);
 }
