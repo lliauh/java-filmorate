@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -40,11 +40,19 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User findUser(@PathVariable("userId") Integer userId, HttpServletRequest request) {
+    public User getById(@PathVariable("userId") Integer userId, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение юзера ID: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), userId);
 
         return userService.getUserById(userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteById(@PathVariable("userId") Integer userId, HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Удаление юзера ID: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString(), userId);
+
+        userService.deleteUserById(userId);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

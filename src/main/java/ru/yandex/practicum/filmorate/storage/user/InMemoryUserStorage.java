@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
-import java.time.LocalDate;
+import ru.yandex.practicum.filmorate.model.user.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,14 +14,13 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
 
-    @Override
     public Map<Integer, User> getUsers() {
         return users;
     }
 
     @Override
     public User create(User user) {
-        validate(user);
+        user.validate();
 
         if (user.getName() == null) {
             user.setName(user.getLogin());
@@ -42,7 +39,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        validate(user);
+        user.validate();
 
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
@@ -58,29 +55,18 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values();
     }
 
-    private void validate(User user) {
-        if (user.getEmail().isEmpty()) {
-            throw new ValidationException("Email не может быть пустым.");
-        }
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Email должен содержать @.");
-        }
-        if (user.getLogin().isEmpty()) {
-            throw new ValidationException("Login не может быть пустым.");
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Login не может содержать пробелы.");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("День рождения не может быть в будущем.");
-        }
-    }
-
     @Override
     public User findUserById(Integer userId) {
         return users.values().stream()
                 .filter(u -> u.getId().equals(userId))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(String.format("Юзер ID: %d не найден", userId)));
+    }
+
+    @Override
+    public void deleteUserById(Integer userId) {
+        if (users.containsKey(userId)) {
+            users.remove(userId);
+        }
     }
 }
