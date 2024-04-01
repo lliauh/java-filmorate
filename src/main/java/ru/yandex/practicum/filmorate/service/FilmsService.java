@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -12,8 +11,6 @@ import java.util.Collection;
 @Service
 @RequiredArgsConstructor
 public class FilmsService {
-
-    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final LikeStorage likeStorage;
 
@@ -43,5 +40,9 @@ public class FilmsService {
 
     public Film getFilmById(Integer filmId) {
         return filmStorage.findFilmById(filmId);
+    }
+
+    public void deleteFilmById(Integer filmId) {
+        filmStorage.deleteFilmById(filmId);
     }
 }

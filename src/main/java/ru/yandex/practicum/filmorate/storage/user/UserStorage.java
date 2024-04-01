@@ -11,4 +11,6 @@ public interface UserStorage {
     Collection<User> findAll();
 
     User findUserById(Integer userId);
+
+    void deleteUserById(Integer userId);
 }

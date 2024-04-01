@@ -69,5 +69,4 @@ public class LikeDbStorage implements LikeStorage {
 
         return like;
     }
-
 }

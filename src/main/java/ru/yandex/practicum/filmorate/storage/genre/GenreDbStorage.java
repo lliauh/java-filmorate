@@ -41,6 +41,7 @@ public class GenreDbStorage implements GenreStorage {
         return jdbcTemplate.query(sql, genreRowMapper);
     }
 
+
     @Override
     public void validateGenre(Integer id) {
         String sql = "SELECT * FROM genres WHERE genre_id = ?;";

@@ -1,27 +1,23 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.film.Film;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-@Qualifier("inMemoryFilmStorage")
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
     public Film create(Film film) {
-        validate(film);
+        film.validate();
 
         if (film.getId() == null) {
             film.setId(films.size() + 1);
@@ -36,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        validate(film);
+        film.validate();
 
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
@@ -52,27 +48,19 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values();
     }
 
-    private void validate(Film film) {
-        if (film.getName().isEmpty()) {
-            throw new ValidationException("Название фильма не может быть пустым.");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Описание фильма не может быть больше 200 символов.");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза не может быть ранее 28.12.1895.");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной.");
-        }
-    }
-
     @Override
     public Film findFilmById(Integer filmId) {
         return films.values().stream()
                 .filter(f -> f.getId().equals(filmId))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм ID: %d не найден", filmId)));
+    }
+
+    @Override
+    public void deleteFilmById(Integer filmId) {
+        if (films.containsKey(filmId)) {
+            films.remove(filmId);
+        }
     }
 
     @Override

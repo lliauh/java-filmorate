@@ -40,11 +40,19 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public Film findFilm(@PathVariable("filmId") Integer filmId, HttpServletRequest request) {
+    public Film getById(@PathVariable("filmId") Integer filmId, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Получение фильма ID: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), filmId);
 
         return filmsService.getFilmById(filmId);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteById(@PathVariable("filmId") Integer filmId, HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Удаление фильма ID: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString(), filmId);
+
+        filmsService.deleteFilmById(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,7 +19,6 @@ import java.sql.Statement;
 import java.util.*;
 
 @Component
-@Qualifier("filmDbStorage")
 @RequiredArgsConstructor
 @Primary
 public class FilmDbStorage implements FilmStorage {
@@ -157,13 +155,18 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private void addGenresFromDb(Film film) {
-        String filmGenresSql = "SELECT * FROM film_genres WHERE film_id = ?;";
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet(filmGenresSql, film.getId());
+    @Override
+    public void deleteFilmById(Integer filmId) {
+        findFilmById(filmId);
 
-        while (genreRows.next()) {
-            film.addGenre(genreStorage.findGenreById(genreRows.getInt("genre_id")));
-        }
+        String sqlDeleteAllFilmLikes = "DELETE FROM likes WHERE film_id = ?;";
+        jdbcTemplate.update(sqlDeleteAllFilmLikes, filmId);
+
+        String sqlDeleteAllFilmGenres = "DELETE FROM film_genres WHERE film_id = ?;";
+        jdbcTemplate.update(sqlDeleteAllFilmGenres, filmId);
+
+        String sqlDeleteFilmById = "DELETE FROM films WHERE film_id = ?;";
+        jdbcTemplate.update(sqlDeleteFilmById, filmId);
     }
 
     @Override
@@ -177,5 +180,14 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         return topRatedFilms;
+    }
+
+    private void addGenresFromDb(Film film) {
+        String filmGenresSql = "SELECT * FROM film_genres WHERE film_id = ?;";
+        SqlRowSet genreRows = jdbcTemplate.queryForRowSet(filmGenresSql, film.getId());
+
+        while (genreRows.next()) {
+            film.addGenre(genreStorage.findGenreById(genreRows.getInt("genre_id")));
+        }
     }
 }

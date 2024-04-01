@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,7 +17,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Component
-@Qualifier("userDbStorage")
 @Primary
 @RequiredArgsConstructor
 @Slf4j
@@ -92,5 +90,19 @@ public class UserDbStorage implements UserStorage {
         } else {
             throw new NotFoundException(String.format("Юзер ID: %d не найден", userId));
         }
+    }
+
+    @Override
+    public void deleteUserById(Integer userId) {
+        findUserById(userId);
+
+        String sqlDeleteAllUserLikes = "DELETE FROM likes WHERE user_id = ?;";
+        jdbcTemplate.update(sqlDeleteAllUserLikes, userId);
+
+        String sqlDeleteAllUserFriends = "DELETE FROM friends WHERE first_user_id = ? OR second_user_id = ?";
+        jdbcTemplate.update(sqlDeleteAllUserFriends, userId, userId);
+
+        String sqlDeleteUserById = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sqlDeleteUserById, userId);
     }
 }
